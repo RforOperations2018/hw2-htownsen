@@ -7,7 +7,29 @@
 #    http://shiny.rstudio.com/
 #
 
+##########################################################################################################################
+# HW2 Instructions:
+# Directions: Use plotly (with or without the aid of ggplot2) to create three 
+# (3) different kinds of figures and one (1) data table. Include at least three (3) types of inputs, 
+#one (1) functioning downloadButton() and one (1) observer in the server. On the server side your plots and 
+#tables must utilize the reactive function for any and all datasets.
+
+# loading necessary libraries
 library(shiny)
+library(plyr)
+library(dplyr)
+library(plotly)
+library(shinythemes)
+library(shinyWidgets)
+
+# Loading in the data for this app.
+# This data was downloaded from the WPRDC.
+# BikePGH -> Autonomous Vehicle Survey of Bicyclists and Pedestrians in Pittsburgh, 2017
+
+# Setting the working directory (folder) where the csv files are
+setwd("C:\\Users\\haley\\Desktop\\R Shiny Operations\\hw2-htownsen\\hw2-htownsend")
+
+df = read.csv("bikepghmembers.csv", strip.white = T)
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
