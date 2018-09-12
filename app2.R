@@ -48,11 +48,13 @@ ui <- fluidPage(
       
       # Show a plot of the generated distribution
       mainPanel(tabsetPanel(type="tabs",
-                            tabPanel("Safety", plotlyOutput()),
-                            tabPanel("Interaction"), plotlyOutput())
+                            tabPanel("Plots", plotlyOutput()),
+                            tabPanel("Data Table", plotlyOutput())
       )
    )
+   )
 )
+
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session=session) {
