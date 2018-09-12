@@ -26,16 +26,15 @@ library(shinyWidgets)
 # This data was downloaded from the WPRDC.
 # BikePGH -> Autonomous Vehicle Survey of Bicyclists and Pedestrians in Pittsburgh, 2017
 
-# Setting the working directory (folder) where the csv files are
-setwd("C:\\Users\\haley\\Desktop\\R Shiny Operations\\hw2-htownsen\\hw2-htownsend")
-
+# No need to set working directory since this app2.R file resides in the same location/repository
+# as the csv files
 df = read.csv("bikepghmembers.csv", strip.white = T)
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
    
    # Application title
-   titlePanel("Old Faithful Geyser Data"),
+   titlePanel("BikePGH Member Responses to AV Survey"),
    
    # Sidebar with a slider input for number of bins 
    sidebarLayout(
@@ -48,23 +47,19 @@ ui <- fluidPage(
       ),
       
       # Show a plot of the generated distribution
-      mainPanel(
-         plotOutput("distPlot")
+      mainPanel(tabsetPanel(type="tabs",
+                            tabPanel("Safety", plotlyOutput()),
+                            tabPanel("Interaction"), plotlyOutput())
       )
    )
 )
 
 # Define server logic required to draw a histogram
-server <- function(input, output) {
+server <- function(input, output, session=session) {
    
-   output$distPlot <- renderPlot({
-      # generate bins based on input$bins from ui.R
-      x    <- faithful[, 2] 
-      bins <- seq(min(x), max(x), length.out = input$bins + 1)
-      
-      # draw the histogram with the specified number of bins
-      hist(x, breaks = bins, col = 'darkgray', border = 'white')
-   })
+   #output$distPlot <- renderPlot({
+
+   #})
 }
 
 # Run the application 
