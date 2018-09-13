@@ -86,7 +86,7 @@ ui <- fluidPage(
       
       # Show a plot of the generated distribution
       mainPanel(tabsetPanel(type="tabs",
-                            tabPanel("Plots", plotlyOutput("plot1")),
+                            tabPanel("Plots", fluidRow(plotlyOutput("plot1"), fluidRow(plotlyOutput("plot2")))),
                             tabPanel("Table",
                                      inputPanel(
                                        downloadButton("downloadData","Download Survey Data")
@@ -96,7 +96,6 @@ ui <- fluidPage(
    )
    )
 )
-
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session=session) {
@@ -117,12 +116,21 @@ server <- function(input, output, session=session) {
     return(df)
   })
   
-  # Point plot showing Mass, Height and Species
+  # PLOT 1: Bar plot showing the number of respondents who feel a certain way about proving ground
   output$plot1 <- renderPlotly({
     dat <- dfInput()
     ggplotly(
       ggplot(data = dat, aes(x = FeelingsProvingGround, color = FeelingsProvingGround, fill=FeelingsProvingGround)) +
         geom_bar() +
+        guides(color = FALSE))
+  })
+  
+  # PLOT 2: Violin plot showing respondent familiarity with AV technologies
+  output$plot2 <- renderPlotly({
+    dat <- dfInput()
+    ggplotly(
+      ggplot(data = dat, aes(x = TechnologyFamiliarity, y=(length(dat$TechnologyFamiliarity)/length(df.load)), color = TechnologyFamiliarity, fill=TechnologyFamiliarity)) +
+        geom_violin() +
         guides(color = FALSE))
   })
   
