@@ -144,7 +144,11 @@ server <- function(input, output, session=session) {
   # FIGURE/PLOT 3: Word Cloud of all the Zipcodes represented, given the inputs
   output$plot3 <- renderPlot({
     v <- dfInput()
-    wordcloud2(demoFreq, color = "random-light", backgroundColor = "grey")
+    word <- unique(v$ZipCode)
+    for (word in v$Zipcode) {
+      freq = (count(word)/length(v))
+    }
+    wordcloud2(color = "random-light", backgroundColor = "grey")
   })
   
   # Data Table Output
