@@ -82,7 +82,8 @@ ui <- fluidPage(
                               "Mostly Unfamiliar" = "Mostly Unfamiliar",
                               "Not Familiar at All" = "Not familiar at all"),
                             selected = c("Extremely familiar", "Mostly familiar")),
-        actionButton("reset", "Reset Filters", icon = icon("refresh"))
+        actionButton("reset", "Reset Filters", icon = icon("refresh")),
+        actionButton("button", "SUBMIT")
                             
       ),
       
@@ -103,7 +104,7 @@ ui <- fluidPage(
 server <- function(input, output, session=session) {
   
   # Filtering the survey data
-  dfInput <- reactive({
+  dfInput <- eventReactive(input$button, {
     df <- df.load %>%
       # safetySelect filter for range on scale
       filter(SafetyAV >= input$safetySelect[1] & SafetyAV <= input$safetySelect[2])
