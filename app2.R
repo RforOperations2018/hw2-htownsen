@@ -28,18 +28,23 @@ library(shinyWidgets)
 
 # No need to set working directory since this app2.R file resides in the same location/repository
 # as the csv files
-df = read.csv("bikepghmembers.csv", strip.white = T)
+df.load = read.csv("bikepghmembers.csv", strip.white = T)
 
 # Rename a few columns to make more sense
-names(df)[20] <- "TechnologyFamiliarity"
+names(df.load)[20] <- "TechnologyFamiliarity"
+
+# Casting the "SafetyAV" scale as a numeric
+df.load$SafetyAV <- as.numeric(df.load$SafetyAV)
+
+pdf(NULL)
 
 # Create a new column that is End.Date minus Start.Date and call it "CompleteTime"
 # And then use "CompleteTime" in an input slider
 # Unfortunately, these times are recorded in "AM" and "PM" instead of military time. All have PST
-df$time2 <- strptime(df$time2, "%Y-%m-%d %H:%M:%OS")
-
-df$CompleteTime <- as.Date(as.character(df$End.Date), format="%m/%d/%Y %h:%m:%s %p")-
-  as.Date(as.character(df$Start.Date), format="%m/%d/%Y %I:%m:%s %p %X")
+# df$time2 <- strptime(df$time2, "%Y-%m-%d %H:%M:%OS")
+# 
+# df$CompleteTime <- as.Date(as.character(df$End.Date), format="%m/%d/%Y %h:%m:%s %p")-
+#   as.Date(as.character(df$Start.Date), format="%m/%d/%Y %I:%m:%s %p %X")
 
 #df$CompleteTime <- difftime(df$End.Date,df$Start.Date,units="mins")
 
@@ -52,9 +57,18 @@ ui <- fluidPage(
    # Sidebar with a slider input for number of bins 
    sidebarLayout(
       sidebarPanel(
+        # AV Safety Selection
+        sliderInput("safetySelect",
+                    "Select Safety Ratings with AVs:",
+                    min = min(df.load$SafetyAV, na.rm = T),
+                    max = max(df.load$SafetyAV, na.rm = T),
+                    value = c(min(df.load$SafetyAV, na.rm = T), max(df.load$SafetyAV, na.rm = T)),
+                    step = 1),
+        
+        # Feelings toward AV Proving Ground in PGH Selection
         selectInput("feelselect",
                     "Select Feelings toward Proving Ground:",
-                    choices = sort(unique(df$FeelingsProvingGround)),
+                    choices = sort(unique(df.load$FeelingsProvingGround)),
                     multiple = TRUE,
                     selectize = TRUE,
                     selected = c("Approve", "Somewhat Approve"))
@@ -78,21 +92,21 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output, session=session) {
   
-  # Filtered survey data
+  # Filtering the survey data
   dfInput <- reactive({
-    df <- starwars.load %>%
-      # Slider Filter
-      filter(birth_year >= input$birthSelect[1] & birth_year <= input$birthSelect[2])
-    # feelSelect (feelings toward having PGH as an AV Proving Ground) Filter
-    if (length(input$worldSelect) > 0 ) {
-      starwars <- subset(starwars, homeworld %in% input$worldSelect)
+    df <- df.load %>%
+      # safetySelect filter for range on scale
+      filter(SafetyAV >= input$safetySelect[1] & SafetyAV <= input$safetySelect[2])
+      # feelSelect (feelings toward having PGH as an AV Proving Ground) Filter
+      if (length(input$feelSelect) > 0 ) {
+        df <- subset(df, FeelingsProvingGround %in% input$feelSelect)
     }
-    
-    return(starwars)
+    return(df)
   })
-  # Data Table
+  
+  # Data Table Output
   output$table <- DT::renderDataTable({
-    starwars <- dfInput()
+    df <- dfInput()
     subset(df, select = c(End.Date, FeelingsProvingGround, AVSafetyPotential, PayingAttentionAV, TechnologyFamiliarity))
   })
   
@@ -102,7 +116,7 @@ server <- function(input, output, session=session) {
       paste("BikePGH-survey-AV-", Sys.Date(), ".csv", sep="")
     },
     content = function(file) {
-      write.csv(swInput(), file)
+      write.csv(dfInput(), file)
     }
   )
   
