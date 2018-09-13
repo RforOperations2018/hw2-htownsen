@@ -53,7 +53,7 @@ pdf(NULL)
 #df$CompleteTime <- difftime(df$End.Date,df$Start.Date,units="mins")
 
 # Define UI for application that draws a histogram
-ui <- fluidPage(
+ui <- fluidPage(theme = shinytheme("united"),
    
    # Application title
    titlePanel("BikePGH Member Responses to AV Survey"),
@@ -63,10 +63,10 @@ ui <- fluidPage(
       sidebarPanel(
         # INPUT 1: AV Safety Selection
         sliderInput("safetySelect",
-                    "Select Respondent Safety Perceptions for AVs:",
+                    "Select Respondent Safety Perceptions for AVs (from 1 'very unsafe' to 5 'very safe'):",
                     min = min(df.load$SafetyAV, na.rm = T),
-                    max = max(df.load$SafetyAV, na.rm = T),
-                    value = c(min(df.load$SafetyAV, na.rm = T), max(df.load$SafetyAV, na.rm = T)),
+                    max = 5,
+                    value = c(min(df.load$SafetyAV, na.rm = T), 5),
                     step = 1),
         
         # INPUT 2: Feelings toward AV Proving Ground in PGH Selection
@@ -158,6 +158,7 @@ server <- function(input, output, session=session) {
   })
   
   # Download data in the datatable
+  # Must "Open in Browser" (the app) in order for the download to work as expected
   output$downloadData <- downloadHandler(
     filename = function() {
       paste("BikePGH-survey-AV-", Sys.Date(), ".csv", sep="")
