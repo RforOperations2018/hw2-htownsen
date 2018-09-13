@@ -21,6 +21,7 @@ library(dplyr)
 library(plotly)
 library(shinythemes)
 library(shinyWidgets)
+library(wordcloud2)
 
 # Loading in the data for this app.
 # This data was downloaded from the WPRDC.
@@ -32,6 +33,9 @@ df.load = read.csv("bikepghmembers.csv", strip.white = T)
 
 # Rename a few columns to make more sense
 names(df.load)[20] <- "TechnologyFamiliarity"
+
+# Making zipcodes a string for the wordcloud
+df.load$ZipCode <- as.character(df.load$ZipCode)
 
 # Casting the "SafetyAV" scale as a numeric
 df.load$SafetyAV <- as.numeric(df.load$SafetyAV)
@@ -89,7 +93,7 @@ ui <- fluidPage(
       
       # Show a plot of the generated distribution
       mainPanel(tabsetPanel(type="tabs",
-                            tabPanel("Plots", fluidRow(plotlyOutput("plot1"), fluidRow(plotlyOutput("plot2")))),
+                            tabPanel("Plots", fluidRow(plotlyOutput("plot1"), fluidRow(plotlyOutput("plot2")), fluidRow(wordcloud2Output("plot3")))),
                             tabPanel("Table",
                                      inputPanel(
                                        downloadButton("downloadData","Download Survey Data")
@@ -135,6 +139,12 @@ server <- function(input, output, session=session) {
       ggplot(data = dat, aes(x = TechnologyFamiliarity, color = TechnologyFamiliarity, fill=TechnologyFamiliarity)) +
         geom_bar() +
         guides(color = FALSE) + coord_flip())
+  })
+  
+  # FIGURE/PLOT 3: Word Cloud of all the Zipcodes represented, given the inputs
+  output$plot3 <- renderPlot({
+    v <- dfInput()
+    wordcloud2(demoFreq, color = "random-light", backgroundColor = "grey")
   })
   
   # Data Table Output
