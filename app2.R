@@ -57,7 +57,7 @@ ui <- fluidPage(
    # Sidebar with a slider input for number of bins 
    sidebarLayout(
       sidebarPanel(
-        # AV Safety Selection
+        # INPUT 1: AV Safety Selection
         sliderInput("safetySelect",
                     "Select Respondent Safety Perceptions for AVs:",
                     min = min(df.load$SafetyAV, na.rm = T),
@@ -65,23 +65,25 @@ ui <- fluidPage(
                     value = c(min(df.load$SafetyAV, na.rm = T), max(df.load$SafetyAV, na.rm = T)),
                     step = 1),
         
-        # Feelings toward AV Proving Ground in PGH Selection
+        # INPUT 2: Feelings toward AV Proving Ground in PGH Selection
         selectInput("feelSelect",
                     "Select Respondent Feelings toward AV Proving Ground in PGH:",
                     choices = sort(unique(df.load$FeelingsProvingGround)),
                     multiple = TRUE,
                     selectize = TRUE,
-                    selected = c("Approve", "Somewhat Approve")),
+                    selected = c("Approve", "Somewhat Approve", "Neutral")),
         
-        # Familiarity with AV Technologies
+        # INPUT 3: Familiarity with AV Technologies
          checkboxGroupInput("techSelect", label="Select Respondent Familiarity with AV Techs:",
                             choices=c(
                               "Extremely Familiar" = "Extremely familiar",
                               "Mostly Familiar" = "Mostly familiar",
                               "Somewhat Familiar" = "Somewhat familiar",
                               "Mostly Unfamiliar" = "Mostly Unfamiliar",
-                              "Not Familiar at All" = "Not familiar at all")
-                            )
+                              "Not Familiar at All" = "Not familiar at all"),
+                            selected = c("Extremely familiar", "Mostly familiar")),
+        actionButton("reset", "Reset Filters", icon = icon("refresh"))
+                            
       ),
       
       # Show a plot of the generated distribution
@@ -116,7 +118,7 @@ server <- function(input, output, session=session) {
     return(df)
   })
   
-  # PLOT 1: Bar plot showing the number of respondents who feel a certain way about proving ground
+  # PLOT 1: Vertical Bar plot showing the number of respondents who feel a certain way about proving ground
   output$plot1 <- renderPlotly({
     dat <- dfInput()
     ggplotly(
@@ -125,13 +127,13 @@ server <- function(input, output, session=session) {
         guides(color = FALSE))
   })
   
-  # PLOT 2: Violin plot showing respondent familiarity with AV technologies
+  # PLOT 2: Horizontal Bar plot showing respondent familiarity with AV technologies
   output$plot2 <- renderPlotly({
     dat <- dfInput()
     ggplotly(
-      ggplot(data = dat, aes(x = TechnologyFamiliarity, y=(length(dat$TechnologyFamiliarity)/length(df.load)), color = TechnologyFamiliarity, fill=TechnologyFamiliarity)) +
-        geom_violin() +
-        guides(color = FALSE))
+      ggplot(data = dat, aes(x = TechnologyFamiliarity, color = TechnologyFamiliarity, fill=TechnologyFamiliarity)) +
+        geom_bar() +
+        guides(color = FALSE) + coord_flip())
   })
   
   # Data Table Output
@@ -149,6 +151,13 @@ server <- function(input, output, session=session) {
       write.csv(dfInput(), file)
     }
   )
+  # Reset Filter Data
+  observeEvent(input$reset, {
+    updateSelectInput(session, "feelSelect", selected = c("Approve", "Somewhat Approve", "Neutral"))
+    updateSliderInput(session, "safetySelect", value = c(min(df.load$SafetyAV, na.rm = T), max(df.load$SafetyAV, na.rm = T)))
+    updateCheckboxGroupInput(session, "techSelect", selected = c("Extremely familiar", "Mostly familiar"))
+    showNotification("You have successfully reset the filters!", type = "message")
+  })
   
 }
 
