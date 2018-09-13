@@ -128,7 +128,7 @@ server <- function(input, output, session=session) {
     dat <- dfInput()
     ggplotly(
       ggplot(data = dat, aes(x = FeelingsProvingGround, color = FeelingsProvingGround, fill=FeelingsProvingGround)) +
-        geom_bar() +
+        geom_bar() + ggtitle("How do you feel right now about the use of Pittsburgh's public streets as a proving ground for AVs?") +
         guides(color = FALSE))
   })
   
@@ -137,18 +137,18 @@ server <- function(input, output, session=session) {
     dat <- dfInput()
     ggplotly(
       ggplot(data = dat, aes(x = TechnologyFamiliarity, color = TechnologyFamiliarity, fill=TechnologyFamiliarity)) +
-        geom_bar() +
+        geom_bar() + ggtitle("How familiar are you with the technology behind autonomous vehicles?") +
         guides(color = FALSE) + coord_flip())
   })
   
   # FIGURE/PLOT 3: Word Cloud of all the Zipcodes represented, given the inputs
-  output$plot3 <- renderPlot({
+  output$plot3 <- renderWordcloud2({
     v <- dfInput()
-    word <- unique(v$ZipCode)
-    for (word in v$Zipcode) {
-      freq = (count(word)/length(v))
-    }
-    wordcloud2(color = "random-light", backgroundColor = "grey")
+    t <- table(v$ZipCode)
+    w <- as.data.frame(t)
+    names(w)[1] <- "word"
+    names(w)[2] <- "freq"
+    wordcloud2(w)
   })
   
   # Data Table Output
@@ -178,4 +178,3 @@ server <- function(input, output, session=session) {
 
 # Run the application 
 shinyApp(ui = ui, server = server)
-
