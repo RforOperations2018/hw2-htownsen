@@ -59,20 +59,29 @@ ui <- fluidPage(
       sidebarPanel(
         # AV Safety Selection
         sliderInput("safetySelect",
-                    "Select Safety Ratings with AVs:",
+                    "Select Respondent Safety Perceptions for AVs:",
                     min = min(df.load$SafetyAV, na.rm = T),
                     max = max(df.load$SafetyAV, na.rm = T),
                     value = c(min(df.load$SafetyAV, na.rm = T), max(df.load$SafetyAV, na.rm = T)),
                     step = 1),
         
         # Feelings toward AV Proving Ground in PGH Selection
-        selectInput("feelselect",
-                    "Select Feelings toward Proving Ground:",
+        selectInput("feelSelect",
+                    "Select Respondent Feelings toward AV Proving Ground in PGH:",
                     choices = sort(unique(df.load$FeelingsProvingGround)),
                     multiple = TRUE,
                     selectize = TRUE,
-                    selected = c("Approve", "Somewhat Approve"))
-         
+                    selected = c("Approve", "Somewhat Approve")),
+        
+        # Familiarity with AV Technologies
+         checkboxGroupInput("techSelect", label="Select Respondent Familiarity with AV Techs:",
+                            choices=c(
+                              "Extremely Familiar" = "Extremely familiar",
+                              "Mostly Familiar" = "Mostly familiar",
+                              "Somewhat Familiar" = "Somewhat familiar",
+                              "Mostly Unfamiliar" = "Mostly Unfamiliar",
+                              "Not Familiar at All" = "Not familiar at all")
+                            )
       ),
       
       # Show a plot of the generated distribution
@@ -100,8 +109,21 @@ server <- function(input, output, session=session) {
       # feelSelect (feelings toward having PGH as an AV Proving Ground) Filter
       if (length(input$feelSelect) > 0 ) {
         df <- subset(df, FeelingsProvingGround %in% input$feelSelect)
+      }
+    # techSelect filter for checkboxes
+    if (length(input$techSelect) > 0 ) {
+      df <- subset(df, TechnologyFamiliarity %in% input$techSelect)
     }
     return(df)
+  })
+  
+  # Point plot showing Mass, Height and Species
+  output$plot1 <- renderPlotly({
+    dat <- dfInput()
+    ggplotly(
+      ggplot(data = dat, aes(x = FeelingsProvingGround, color = FeelingsProvingGround, fill=FeelingsProvingGround)) +
+        geom_bar() +
+        guides(color = FALSE))
   })
   
   # Data Table Output
