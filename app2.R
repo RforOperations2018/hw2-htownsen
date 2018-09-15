@@ -29,7 +29,8 @@ library(wordcloud2)
 
 # No need to set working directory since this app2.R file resides in the same location/repository
 # as the csv files
-df.load = read.csv("bikepghmembers.csv", strip.white = T)
+# Use <- in the future, see code standards
+df.load <- read.csv("bikepghmembers.csv", strip.white = T)
 
 # Rename a few columns to make more sense
 names(df.load)[20] <- "TechnologyFamiliarity"
@@ -127,6 +128,7 @@ server <- function(input, output, session=session) {
   output$plot1 <- renderPlotly({
     dat <- dfInput()
     ggplotly(
+      # In the future try and make a custom tooltip
       ggplot(data = dat, aes(x = FeelingsProvingGround, color = FeelingsProvingGround, fill=FeelingsProvingGround)) +
         geom_bar() + ggtitle("How do you feel right now about the use of Pittsburgh's public streets as a proving ground for AVs?") +
         guides(color = FALSE))
