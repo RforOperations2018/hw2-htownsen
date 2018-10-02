@@ -35,6 +35,7 @@ library(wordcloud2)
 library(httr)
 library(jsonlite)
 library(htmltools)
+# library(gsubfn)
 
 ckanSQL <- function(url) {
   # Make the Request
@@ -42,7 +43,8 @@ ckanSQL <- function(url) {
   # Extract Content
   c <- content(r, "text")
   # Basic gsub to make NA's consistent with R
-  json <- gsub('NaN', 'NA', c, perl = TRUE)
+  # trying to get rid of the empty strings too
+  json <- gsub("NaN|''", 'NA', c, perl = TRUE)
   # Create Dataframe
   data.frame(jsonlite::fromJSON(json)$result$records)
 }
@@ -56,6 +58,10 @@ ckanUniques <- function(id, field) {
 # BikePGH Member Responses from Autonomous Vehicle Survey
 # Grab the unique values for the FeelingsProvingGround column, which is used in INPUT 2
 feelPG <- sort(ckanUniques("6d29ac78-12b8-4e1d-b325-6edeef59b593", "FeelingsProvingGround")$FeelingsProvingGround)
+# Grab the unique values for the FamiliarityTechnoology column, which is used in INPUT 3
+familiarTech <- sort(ckanUniques("6d29ac78-12b8-4e1d-b325-6edeef59b593", "FamiliarityTechnoology")$FamiliarityTechnoology)
+# Grab the unique values for the FamiliarityTechnoology column, which is used in INPUT 3
+safetySlide <- sort(ckanUniques("6d29ac78-12b8-4e1d-b325-6edeef59b593", "SafetyAV")$SafetyAV)
 
 # BikePGH -> Autonomous Vehicle Survey of Bicyclists and Pedestrians in Pittsburgh, 2017
 
@@ -96,15 +102,15 @@ ui <- fluidPage(theme = shinytheme("united"),
         # INPUT 1: AV Safety Selection
         sliderInput("safetySelect",
                     "Select Respondent Safety Perceptions for AVs (from 1 'very unsafe' to 5 'very safe'):",
-                    min = min(df.load$SafetyAV, na.rm = T),
-                    max = 5,
-                    value = c(min(df.load$SafetyAV, na.rm = T), 5),
+                    min = min(as.numeric(safetySlide), na.rm=T),
+                    max = max(as.numeric(safetySlide), na.rm=T),
+                    value = c(min(df.load$SafetyAV, na.rm = T), max(as.numeric(safetySlide), na.rm=T)),
                     step = 1),
         
         # INPUT 2: Feelings toward AV Proving Ground in PGH Selection
         selectInput("feelSelect",
                     "Select Respondent Feelings toward AV Proving Ground in PGH:",
-                    choices = sort(unique(df.load$FeelingsProvingGround)),
+                    choices = feelPG,
                     multiple = TRUE,
                     selectize = TRUE,
                     selected = c("Approve", "Somewhat Approve", "Neutral")),
