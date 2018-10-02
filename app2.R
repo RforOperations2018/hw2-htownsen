@@ -104,7 +104,7 @@ ui <- fluidPage(theme = shinytheme("united"),
                     "Select Respondent Safety Perceptions for AVs (from 1 'very unsafe' to 5 'very safe'):",
                     min = min(as.numeric(safetySlide), na.rm=T),
                     max = max(as.numeric(safetySlide), na.rm=T),
-                    value = c(min(df.load$SafetyAV, na.rm = T), max(as.numeric(safetySlide), na.rm=T)),
+                    value = c(min(as.numeric(safetySlide), na.rm=T), max(as.numeric(safetySlide), na.rm=T)),
                     step = 1),
         
         # INPUT 2: Feelings toward AV Proving Ground in PGH Selection
@@ -147,8 +147,11 @@ server <- function(input, output, session=session) {
   
   loaddf <- reactive({
     # Build API Query with proper encodes
-    #I only want to keep COMPLETE surveys, so filter out the INCOMPLETE
-    url <- paste0("https://data.wprdc.org/api/action/datastore_search_sql?sql=SELECT%20*%20FROM%20%2276fda9d0-69be-4dd5-8108-0de7907fc5a4%22%20WHERE%20%22CREATED_ON%22%20%3E=%20%27", input$dates[1], "%27%20AND%20%22CREATED_ON%22%20%3C=%20%27", input$dates[2], "%27%20AND%20%22REQUEST_TYPE%22%20=%20%27", input$type_select, "%27")
+    #I only want to keep COMPLETE surveys, so filter out the INCOMPLETE as well
+    # Also filter by the three inputs 
+    url <- paste0("https://data.wprdc.org/api/3/action/datastore_search_sql?sql=SELECT%20*%20FROM%20%226d29ac78-12b8-4e1d-b325-6edeef59b593%22%20WHERE%20%22SafetyAV%22%20%3E=%20%27",
+                  input$safetySelect, "%27%20AND%20%22FeelingsProvingGround%22%20=%20%27", input$feelSelect, "%27%20AND%20%22FamiliarityTechnoology%22%20=%20%27",
+                  input$techSelect, "%27")
     
     # Load and clean data
     dat311 <- ckanSQL(url) %>%
