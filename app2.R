@@ -49,13 +49,14 @@ ckanSQL <- function(url) {
 
 # Unique values for Resource Field
 ckanUniques <- function(id, field) {
-  url <- paste0("https://data.wprdc.org/api/action/datastore_search_sql?sql=SELECT%20DISTINCT(%22", field, "%22)%20from%20%22", id, "%22")
+  url <- paste0("https://data.wprdc.org/api/3/action/datastore_search_sql?sql=SELECT%20DISTINCT(%22", field, "%22)%20from%20%22", id, "%22")
   c(ckanSQL(URLencode(url)))
 }
 
-types <- sort(ckanUniques("76fda9d0-69be-4dd5-8108-0de7907fc5a4", "REQUEST_TYPE")$REQUEST_TYPE)
-# Loading in the data for this app.
-# This data was downloaded from the WPRDC.
+# BikePGH Member Responses from Autonomous Vehicle Survey
+# Grab the unique values for the FeelingsProvingGround column, which is used in INPUT 2
+feelPG <- sort(ckanUniques("6d29ac78-12b8-4e1d-b325-6edeef59b593", "FeelingsProvingGround")$FeelingsProvingGround)
+
 # BikePGH -> Autonomous Vehicle Survey of Bicyclists and Pedestrians in Pittsburgh, 2017
 
 # No need to set working directory since this app2.R file resides in the same location/repository
@@ -140,6 +141,7 @@ server <- function(input, output, session=session) {
   
   loaddf <- reactive({
     # Build API Query with proper encodes
+    #I only want to keep COMPLETE surveys, so filter out the INCOMPLETE
     url <- paste0("https://data.wprdc.org/api/action/datastore_search_sql?sql=SELECT%20*%20FROM%20%2276fda9d0-69be-4dd5-8108-0de7907fc5a4%22%20WHERE%20%22CREATED_ON%22%20%3E=%20%27", input$dates[1], "%27%20AND%20%22CREATED_ON%22%20%3C=%20%27", input$dates[2], "%27%20AND%20%22REQUEST_TYPE%22%20=%20%27", input$type_select, "%27")
     
     # Load and clean data
