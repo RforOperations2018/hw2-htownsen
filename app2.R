@@ -14,6 +14,15 @@
 #one (1) functioning downloadButton() and one (1) observer in the server. On the server side your plots and 
 #tables must utilize the reactive function for any and all datasets.
 
+#Homework 4: Using Web API’s
+#Due Date: 10/5/2018
+
+#For many web applications it is important to pull information from somewhere else on the internet.
+#For this assignment Students are expected to change their data source from a static file in their 
+#code from Homework 2 or Project 1 and replace it with the API from that resource.
+#Students should also address any issues brought up during the grading the assignment in question. 
+
+
 # loading necessary libraries
 library(shiny)
 library(plyr)
@@ -22,25 +31,47 @@ library(plotly)
 library(shinythemes)
 library(shinyWidgets)
 library(wordcloud2)
+# New libraries for HW 4
+library(httr)
+library(jsonlite)
+library(htmltools)
 
+ckanSQL <- function(url) {
+  # Make the Request
+  r <- RETRY("GET", URLencode(url))
+  # Extract Content
+  c <- content(r, "text")
+  # Basic gsub to make NA's consistent with R
+  json <- gsub('NaN', 'NA', c, perl = TRUE)
+  # Create Dataframe
+  data.frame(jsonlite::fromJSON(json)$result$records)
+}
+
+# Unique values for Resource Field
+ckanUniques <- function(id, field) {
+  url <- paste0("https://data.wprdc.org/api/action/datastore_search_sql?sql=SELECT%20DISTINCT(%22", field, "%22)%20from%20%22", id, "%22")
+  c(ckanSQL(URLencode(url)))
+}
+
+types <- sort(ckanUniques("76fda9d0-69be-4dd5-8108-0de7907fc5a4", "REQUEST_TYPE")$REQUEST_TYPE)
 # Loading in the data for this app.
 # This data was downloaded from the WPRDC.
 # BikePGH -> Autonomous Vehicle Survey of Bicyclists and Pedestrians in Pittsburgh, 2017
 
 # No need to set working directory since this app2.R file resides in the same location/repository
 # as the csv files
-df.load = read.csv("bikepghmembers.csv", strip.white = T)
-
-# Rename a few columns to make more sense
-names(df.load)[20] <- "TechnologyFamiliarity"
-
-# Making zipcodes a string for the wordcloud
-df.load$ZipCode <- as.character(df.load$ZipCode)
-
-# Casting the "SafetyAV" scale as a numeric
-df.load$SafetyAV <- as.numeric(df.load$SafetyAV)
-
-pdf(NULL)
+# df.load = read.csv("bikepghmembers.csv", strip.white = T)
+# 
+# # Rename a few columns to make more sense
+# names(df.load)[20] <- "TechnologyFamiliarity"
+# 
+# # Making zipcodes a string for the wordcloud
+# df.load$ZipCode <- as.character(df.load$ZipCode)
+# 
+# # Casting the "SafetyAV" scale as a numeric
+# df.load$SafetyAV <- as.numeric(df.load$SafetyAV)
+# 
+# pdf(NULL)
 
 # Create a new column that is End.Date minus Start.Date and call it "CompleteTime"
 # And then use "CompleteTime" in an input slider
@@ -106,6 +137,18 @@ ui <- fluidPage(theme = shinytheme("united"),
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session=session) {
+  
+  loaddf <- reactive({
+    # Build API Query with proper encodes
+    url <- paste0("https://data.wprdc.org/api/action/datastore_search_sql?sql=SELECT%20*%20FROM%20%2276fda9d0-69be-4dd5-8108-0de7907fc5a4%22%20WHERE%20%22CREATED_ON%22%20%3E=%20%27", input$dates[1], "%27%20AND%20%22CREATED_ON%22%20%3C=%20%27", input$dates[2], "%27%20AND%20%22REQUEST_TYPE%22%20=%20%27", input$type_select, "%27")
+    
+    # Load and clean data
+    dat311 <- ckanSQL(url) %>%
+      mutate(date = as.Date(CREATED_ON),
+             STATUS = ifelse(STATUS == 1, "Closed", "Open"))
+    
+    return(dat311)
+  })
   
   # Filtering the survey data
   dfInput <- eventReactive(input$button, {
