@@ -192,48 +192,48 @@ server <- function(input, output, session=session) {
         guides(color = FALSE))
   })
   
-  # PLOT 2: Horizontal Bar plot showing respondent familiarity with AV technologies
-  output$plot2 <- renderPlotly({
-    dat <- dfInput()
-    ggplotly(
-      ggplot(data = dat, aes(x = TechnologyFamiliarity, color = TechnologyFamiliarity, fill=TechnologyFamiliarity)) +
-        geom_bar() + ggtitle("How familiar are you with the technology behind autonomous vehicles?") +
-        guides(color = FALSE) + coord_flip())
-  })
-  
-  # FIGURE/PLOT 3: Word Cloud of all the Zipcodes represented, given the inputs
-  output$plot3 <- renderWordcloud2({
-    v <- dfInput()
-    t <- table(v$ZipCode)
-    w <- as.data.frame(t)
-    names(w)[1] <- "word"
-    names(w)[2] <- "freq"
-    wordcloud2(w)
-  })
-  
-  # Data Table Output
-  output$table <- DT::renderDataTable({
-    df <- dfInput()
-    subset(df, select = c(End.Date, FeelingsProvingGround, AVSafetyPotential, PayingAttentionAV, TechnologyFamiliarity))
-  })
-  
-  # Download data in the datatable
-  # Must "Open in Browser" (the app) in order for the download to work as expected
-  output$downloadData <- downloadHandler(
-    filename = function() {
-      paste("BikePGH-survey-AV-", Sys.Date(), ".csv", sep="")
-    },
-    content = function(file) {
-      write.csv(dfInput(), file)
-    }
-  )
-  # Reset Filter Data
-  observeEvent(input$reset, {
-    updateSelectInput(session, "feelSelect", selected = c("Approve", "Somewhat Approve", "Neutral"))
-    updateSliderInput(session, "safetySelect", value = c(min(df.load$SafetyAV, na.rm = T), max(df.load$SafetyAV, na.rm = T)))
-    updateCheckboxGroupInput(session, "techSelect", selected = c("Extremely familiar", "Mostly familiar"))
-    showNotification("You have successfully reset the filters!", type = "message")
-  })
+  # # PLOT 2: Horizontal Bar plot showing respondent familiarity with AV technologies
+  # output$plot2 <- renderPlotly({
+  #   dat <- dfInput()
+  #   ggplotly(
+  #     ggplot(data = dat, aes(x = TechnologyFamiliarity, color = TechnologyFamiliarity, fill=TechnologyFamiliarity)) +
+  #       geom_bar() + ggtitle("How familiar are you with the technology behind autonomous vehicles?") +
+  #       guides(color = FALSE) + coord_flip())
+  # })
+  # 
+  # # FIGURE/PLOT 3: Word Cloud of all the Zipcodes represented, given the inputs
+  # output$plot3 <- renderWordcloud2({
+  #   v <- dfInput()
+  #   t <- table(v$ZipCode)
+  #   w <- as.data.frame(t)
+  #   names(w)[1] <- "word"
+  #   names(w)[2] <- "freq"
+  #   wordcloud2(w)
+  # })
+  # 
+  # # Data Table Output
+  # output$table <- DT::renderDataTable({
+  #   df <- dfInput()
+  #   subset(df, select = c(End.Date, FeelingsProvingGround, AVSafetyPotential, PayingAttentionAV, TechnologyFamiliarity))
+  # })
+  # 
+  # # Download data in the datatable
+  # # Must "Open in Browser" (the app) in order for the download to work as expected
+  # output$downloadData <- downloadHandler(
+  #   filename = function() {
+  #     paste("BikePGH-survey-AV-", Sys.Date(), ".csv", sep="")
+  #   },
+  #   content = function(file) {
+  #     write.csv(dfInput(), file)
+  #   }
+  # )
+  # # Reset Filter Data
+  # observeEvent(input$reset, {
+  #   updateSelectInput(session, "feelSelect", selected = c("Approve", "Somewhat Approve", "Neutral"))
+  #   updateSliderInput(session, "safetySelect", value = c(min(df.load$SafetyAV, na.rm = T), max(df.load$SafetyAV, na.rm = T)))
+  #   updateCheckboxGroupInput(session, "techSelect", selected = c("Extremely familiar", "Mostly familiar"))
+  #   showNotification("You have successfully reset the filters!", type = "message")
+  # })
   
 }
 
