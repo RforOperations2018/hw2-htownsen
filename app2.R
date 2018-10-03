@@ -145,7 +145,7 @@ ui <- fluidPage(theme = shinytheme("united"),
 # Define server logic required to draw a histogram
 server <- function(input, output, session=session) {
   
-  loaddf <- reactive({
+  loaddf <- eventReactive(input$button, {
     # Build API Query with proper encodes
     #I only want to keep COMPLETE surveys, so filter out the INCOMPLETE as well
     # Also filter by the three inputs 
@@ -154,32 +154,38 @@ server <- function(input, output, session=session) {
                   input$techSelect, "%27")
     
     # Load and clean data
-    dat311 <- ckanSQL(url) %>%
+    datav <- ckanSQL(url) %>%
       mutate(date = as.Date(CREATED_ON),
              STATUS = ifelse(STATUS == 1, "Closed", "Open"))
     
-    return(dat311)
+    return(datav)
   })
   
-  # Filtering the survey data
-  dfInput <- eventReactive(input$button, {
-    df <- df.load %>%
-      # safetySelect filter for range on scale
-      filter(SafetyAV >= input$safetySelect[1] & SafetyAV <= input$safetySelect[2])
-      # feelSelect (feelings toward having PGH as an AV Proving Ground) Filter
-      if (length(input$feelSelect) > 0 ) {
-        df <- subset(df, FeelingsProvingGround %in% input$feelSelect)
-      }
-    # techSelect filter for checkboxes
-    if (length(input$techSelect) > 0 ) {
-      df <- subset(df, TechnologyFamiliarity %in% input$techSelect)
-    }
-    return(df)
-  })
+  # # Filtering the survey data
+  # dfInput <- eventReactive(input$button, {
+  #   df <- df.load %>%
+  #     # safetySelect filter for range on scale
+  #     filter(SafetyAV >= input$safetySelect[1] & SafetyAV <= input$safetySelect[2])
+  #     # feelSelect (feelings toward having PGH as an AV Proving Ground) Filter
+  #     if (length(input$feelSelect) > 0 ) {
+  #       df <- subset(df, FeelingsProvingGround %in% input$feelSelect)
+  #     }
+  #   # techSelect filter for checkboxes
+  #   if (length(input$techSelect) > 0 ) {
+  #     df <- subset(df, TechnologyFamiliarity %in% input$techSelect)
+  #   }
+  #   return(df)
+  # })
   
   # PLOT 1: Vertical Bar plot showing the number of respondents who feel a certain way about proving ground
   output$plot1 <- renderPlotly({
-    dat <- dfInput()
+    
+    dat <- loaddf()
+    # data for plot 1
+    df <- dat %>%
+      group_by(FEELS) %>%
+      summarise(COUNT = n())
+    
     ggplotly(
       ggplot(data = dat, aes(x = FeelingsProvingGround, color = FeelingsProvingGround, fill=FeelingsProvingGround)) +
         geom_bar() + ggtitle("How do you feel right now about the use of Pittsburgh's public streets as a proving ground for AVs?") +
