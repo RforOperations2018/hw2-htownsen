@@ -1,0 +1,2 @@
+?sql=SELECT * FROM "6d29ac78-12b8-4e1d-b325-6edeef59b593" WHERE "SafetyAV" >= '1' AND "SafetyAV" <= '5'
+AND 
