@@ -153,11 +153,13 @@ server <- function(input, output, session=session) {
     #(list_vals)+AND+%22FamiliarityTechnoology%22+IN+(list_vals)%3Fsql%3D
     #"%20%AND%20%22FeelingsProvingGround%22%20IN%20", input$feelSelect,
     #"%20AND%20%22FamiliarityTechnoology%22%20IN%20", input$techSelect, "%3Fsql%3D")
+    #paste0("https://data.wprdc.org/api/3/action/datastore_search_sql?sql=SELECT%20*%20FROM%20%226d29ac78-12b8-4e1d-b325-6edeef59b593%22%20WHERE%20%22SafetyAV%22%203E%3D",
+    #input$safetySelect[1], "%20AND%20%22SafetyAV%22%20%3C%3D", input$safetySelect[2],"%3Fsql%3D")
     
     # Also filter by the three inputs 
-    url <- paste0("https://data.wprdc.org/api/3/action/datastore_search_sql?sql=SELECT%20*%20FROM%20%226d29ac78-12b8-4e1d-b325-6edeef59b593%22%20WHERE%20%22SafetyAV%22%203E%3D",
-                  input$safetySelect[1], "AND%20%22SafetyAV%22%20%3C%3D", input$safetySelect[2],"%3Fsql%3D")
-    # Load and clean data
+    url <- paste0("https://data.wprdc.org/api/3/action/datastore_search_sql?sql=SELECT+*+FROM+%226d29ac78-12b8-4e1d-b325-6edeef59b593%22+WHERE+%22SafetyAV%22+%3E%3D+",
+                  input$safetySelect[1],"+AND+%22SafetyAV%22+%3C%3D+", input$safetySelect[2])
+    
     datav <- ckanSQL(url) %>% 
       mutate(rating = as.numeric("SafetyAV"),
              End.Date = "End Date")
@@ -229,7 +231,7 @@ server <- function(input, output, session=session) {
       paste("BikePGH-survey-AV-", Sys.Date(), ".csv", sep="")
     },
     content = function(file) {
-      write.csv(dfInput(), file)
+      write.csv(loaddf(), file)
     }
   )
   # # Reset Filter Data

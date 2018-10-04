@@ -1,2 +1,4 @@
 ?sql=SELECT * FROM "6d29ac78-12b8-4e1d-b325-6edeef59b593" WHERE "SafetyAV" >= '1' AND "SafetyAV" <= '5'
 AND "FeelingsProvingGround" IN (list_vals) AND "FamiliarityTechnoology" IN (list_vals)
+
+SELECT+*+FROM+%226d29ac78-12b8-4e1d-b325-6edeef59b593%22+WHERE+%22SafetyAV%22+%3E%3D+'1'+AND+%22SafetyAV%22+%3C%3D+'5'
