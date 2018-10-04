@@ -166,55 +166,39 @@ server <- function(input, output, session=session) {
     return(datav)
   })
   
-  # # Filtering the survey data
-  # dfInput <- eventReactive(input$button, {
-  #   df <- df.load %>%
-  #     # safetySelect filter for range on scale
-  #     filter(SafetyAV >= input$safetySelect[1] & SafetyAV <= input$safetySelect[2])
-  #     # feelSelect (feelings toward having PGH as an AV Proving Ground) Filter
-  #     if (length(input$feelSelect) > 0 ) {
-  #       df <- subset(df, FeelingsProvingGround %in% input$feelSelect)
-  #     }
-  #   # techSelect filter for checkboxes
-  #   if (length(input$techSelect) > 0 ) {
-  #     df <- subset(df, TechnologyFamiliarity %in% input$techSelect)
-  #   }
-  #   return(df)
-  # })
-  
-  # PLOT 1: Vertical Bar plot showing the number of respondents who feel a certain way about proving ground
-  # output$plot1 <- renderPlotly({
-  #   
-  #   dat <- loaddf()
-  #   # data for plot 1
-  #   df <- dat %>%
-  #     group_by(FeelingsProvingGround) %>%
-  #     summarise(COUNT = n())
-  #   
-  #   ggplotly(
-  #     ggplot(data = dat, aes(x = FeelingsProvingGround, color = FeelingsProvingGround, fill=FeelingsProvingGround)) +
-  #       geom_bar() + ggtitle("How do you feel right now about the use of Pittsburgh's public streets as a proving ground for AVs?") +
-  #       guides(color = FALSE))
-  # })
-  
-  # # PLOT 2: Horizontal Bar plot showing respondent familiarity with AV technologies
-  # output$plot2 <- renderPlotly({
-  #   dat <- dfInput()
-  #   ggplotly(
-  #     ggplot(data = dat, aes(x = TechnologyFamiliarity, color = TechnologyFamiliarity, fill=TechnologyFamiliarity)) +
-  #       geom_bar() + ggtitle("How familiar are you with the technology behind autonomous vehicles?") +
-  #       guides(color = FALSE) + coord_flip())
-  # })
+  #PLOT 1: Vertical Bar plot showing the number of respondents who feel a certain way about proving ground
+  output$plot1 <- renderPlotly({
 
-  # # FIGURE/PLOT 3: Word Cloud of all the Zipcodes represented, given the inputs
-  # output$plot3 <- renderWordcloud2({
-  #   v <- dfInput()
-  #   t <- table(v$ZipCode)
-  #   w <- as.data.frame(t)
-  #   names(w)[1] <- "word"
-  #   names(w)[2] <- "freq"
-  #   wordcloud2(w)
-  # })
+    dat <- loaddf()
+    # data for plot 1
+    df <- dat %>%
+      group_by(FeelingsProvingGround) %>%
+      summarise(COUNT = n())
+
+    ggplotly(
+      ggplot(data = dat, aes(x = FeelingsProvingGround, color = FeelingsProvingGround, fill=FeelingsProvingGround)) +
+        geom_bar() + ggtitle("How do you feel about the use of Pittsburgh's public streets as a proving ground for AVs?") +
+        guides(color = FALSE))
+  })
+  
+  # PLOT 2: Horizontal Bar plot showing respondent familiarity with AV technologies
+  output$plot2 <- renderPlotly({
+    dat <- loaddf()
+    ggplotly(
+      ggplot(data = dat, aes(x = FamiliarityTechnoology, color = FamiliarityTechnoology, fill = FamiliarityTechnoology)) +
+        geom_bar() + ggtitle("How familiar are you with the technology behind autonomous vehicles?") +
+        guides(color = FALSE) + coord_flip())
+  })
+
+  # FIGURE/PLOT 3: Word Cloud of all the Zipcodes represented, given the inputs
+  output$plot3 <- renderWordcloud2({
+    v <- loaddf()
+    t <- table(v$ZipCode)
+    w <- as.data.frame(t)
+    names(w)[1] <- "word"
+    names(w)[2] <- "freq"
+    wordcloud2(w)
+  })
 
   # Data Table Output
   #FeelingsProvingGround, AVSafetyPotential, PayingAttentionAV, TechnologyFamiliarity
