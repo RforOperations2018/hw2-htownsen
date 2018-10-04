@@ -151,12 +151,15 @@ server <- function(input, output, session=session) {
     
     #SELECT+*+FROM+%226d29ac78-12b8-4e1d-b325-6edeef59b593%22+WHERE+%22SafetyAV%22+%3E%3D+'1'+AND+%22SafetyAV%22+%3C%3D+'5'+AND+%22FeelingsProvingGround%22+IN+
     #(list_vals)+AND+%22FamiliarityTechnoology%22+IN+(list_vals)%3Fsql%3D
+    #"%20%AND%20%22FeelingsProvingGround%22%20IN%20", input$feelSelect,
+    #"%20AND%20%22FamiliarityTechnoology%22%20IN%20", input$techSelect, "%3Fsql%3D")
+    
     # Also filter by the three inputs 
     url <- paste0("https://data.wprdc.org/api/3/action/datastore_search_sql?sql=SELECT%20*%20FROM%20%226d29ac78-12b8-4e1d-b325-6edeef59b593%22%20WHERE%20%22SafetyAV%22%203E%3D",
-                  input$safetySelect[1], "AND%20%22SafetyAV%22%20%3C%3D", input$safetySelect[2],"%20%AND%20%22FeelingsProvingGround%22%20IN%20", input$feelSelect,
-                  "%20AND%20%22FamiliarityTechnoology%22%20IN%20", input$techSelect, "%3Fsql%3D")
+                  input$safetySelect[1], "AND%20%22SafetyAV%22%20%3C%3D", input$safetySelect[2],"%3Fsql%3D")
     # Load and clean data
-    datav <- ckanSQL(url)
+    datav <- ckanSQL(url) %>%
+      mutate(rating = as.numeric(SafetyAV))
     
     return(datav)
   })
@@ -178,19 +181,19 @@ server <- function(input, output, session=session) {
   # })
   
   # PLOT 1: Vertical Bar plot showing the number of respondents who feel a certain way about proving ground
-  output$plot1 <- renderPlotly({
-    
-    dat <- loaddf()
-    # data for plot 1
-    df <- dat %>%
-      group_by(FeelingsProvingGround) %>%
-      summarise(COUNT = n())
-    
-    ggplotly(
-      ggplot(data = dat, aes(x = FeelingsProvingGround, color = FeelingsProvingGround, fill=FeelingsProvingGround)) +
-        geom_bar() + ggtitle("How do you feel right now about the use of Pittsburgh's public streets as a proving ground for AVs?") +
-        guides(color = FALSE))
-  })
+  # output$plot1 <- renderPlotly({
+  #   
+  #   dat <- loaddf()
+  #   # data for plot 1
+  #   df <- dat %>%
+  #     group_by(FeelingsProvingGround) %>%
+  #     summarise(COUNT = n())
+  #   
+  #   ggplotly(
+  #     ggplot(data = dat, aes(x = FeelingsProvingGround, color = FeelingsProvingGround, fill=FeelingsProvingGround)) +
+  #       geom_bar() + ggtitle("How do you feel right now about the use of Pittsburgh's public streets as a proving ground for AVs?") +
+  #       guides(color = FALSE))
+  # })
   
   # # PLOT 2: Horizontal Bar plot showing respondent familiarity with AV technologies
   # output$plot2 <- renderPlotly({
@@ -200,7 +203,7 @@ server <- function(input, output, session=session) {
   #       geom_bar() + ggtitle("How familiar are you with the technology behind autonomous vehicles?") +
   #       guides(color = FALSE) + coord_flip())
   # })
-  # 
+
   # # FIGURE/PLOT 3: Word Cloud of all the Zipcodes represented, given the inputs
   # output$plot3 <- renderWordcloud2({
   #   v <- dfInput()
@@ -210,23 +213,23 @@ server <- function(input, output, session=session) {
   #   names(w)[2] <- "freq"
   #   wordcloud2(w)
   # })
-  # 
-  # # Data Table Output
-  # output$table <- DT::renderDataTable({
-  #   df <- dfInput()
-  #   subset(df, select = c(End.Date, FeelingsProvingGround, AVSafetyPotential, PayingAttentionAV, TechnologyFamiliarity))
-  # })
-  # 
-  # # Download data in the datatable
-  # # Must "Open in Browser" (the app) in order for the download to work as expected
-  # output$downloadData <- downloadHandler(
-  #   filename = function() {
-  #     paste("BikePGH-survey-AV-", Sys.Date(), ".csv", sep="")
-  #   },
-  #   content = function(file) {
-  #     write.csv(dfInput(), file)
-  #   }
-  # )
+
+  # Data Table Output
+  output$table <- DT::renderDataTable({
+    df <- loaddf()
+    subset(df, select = c(End.Date, FeelingsProvingGround, AVSafetyPotential, PayingAttentionAV, TechnologyFamiliarity))
+  })
+
+  # Download data in the datatable
+  # Must "Open in Browser" (the app) in order for the download to work as expected
+  output$downloadData <- downloadHandler(
+    filename = function() {
+      paste("BikePGH-survey-AV-", Sys.Date(), ".csv", sep="")
+    },
+    content = function(file) {
+      write.csv(dfInput(), file)
+    }
+  )
   # # Reset Filter Data
   # observeEvent(input$reset, {
   #   updateSelectInput(session, "feelSelect", selected = c("Approve", "Somewhat Approve", "Neutral"))
