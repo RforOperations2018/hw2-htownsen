@@ -116,14 +116,14 @@ ui <- fluidPage(theme = shinytheme("united"),
                     selected = c("Approve")),
         
         # INPUT 3: Familiarity with AV Technologies
-         radioButtons("techSelect", label="Select Respondent Familiarity with AV Techs:",
+         checkboxGroupInput("techSelect", label="Select Respondent Familiarity with AV Techs:",
                             choices=c(
                               "Extremely Familiar" = "Extremely familiar",
                               "Mostly Familiar" = "Mostly familiar",
                               "Somewhat Familiar" = "Somewhat familiar",
                               "Mostly Unfamiliar" = "Mostly Unfamiliar",
                               "Not Familiar at All" = "Not familiar at all"),
-                            selected = c("Extremely familiar")),
+                            selected = c("Extremely familiar", "Mostly familiar")),
         actionButton("reset", "Reset Filters", icon = icon("refresh")),
         actionButton("button", "SUBMIT")
                             
@@ -153,7 +153,8 @@ server <- function(input, output, session=session) {
     url <- paste0("https://data.wprdc.org/api/3/action/datastore_search_sql?sql=SELECT%20*%20FROM%20%226d29ac78-12b8-4e1d-b325-6edeef59b593%22%20WHERE%20%22SafetyAV%22%3E%3D%27",
                   input$safetySelect[1], "%27%20AND%20%22SafetyAV%22%3C%3D%27",input$safetySelect[2],"%27%20AND%20%22FeelingsProvingGround%22%20IN%20%28%27", gsub(" ", "%20",input$feelSelect[1]),
                   "%27%2C%20%27", gsub(" ", "%20",input$feelSelect[2]),"%27%2C%20%27", gsub(" ", "%20",input$feelSelect[3]),"%27%2C%20%27", gsub(" ", "%20",input$feelSelect[4]), "%27%2C%20%27",
-                  gsub(" ", "%20",input$feelSelect[5]), "%27%29%20AND%20%22FamiliarityTechnoology%22%20%3D%20%27", gsub(" ", "%20", input$techSelect), "%27"
+                  gsub(" ", "%20",input$feelSelect[5]), "%27%29%20AND%20%22FamiliarityTechnoology%22%20IN%20%28%27", gsub(" ", "%20", input$techSelect[1]),"%27%2C%20%27", gsub(" ", "%20", input$techSelect[2]),
+                  "%27%2C%20%27", gsub(" ", "%20", input$techSelect[3]), "%27%2C%20%27", gsub(" ", "%20", input$techSelect[4]),"%27%2C%20%27", gsub(" ", "%20", input$techSelect[5]),"%27%29"
     )
     
     datav <- ckanSQL(url) %>% 
