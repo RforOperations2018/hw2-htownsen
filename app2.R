@@ -162,7 +162,7 @@ server <- function(input, output, session=session) {
     )
     
     datav <- ckanSQL(url) %>% 
-      mutate(rating = as.numeric("SafetyAV"))
+      mutate(rating = as.numeric(SafetyAV))
     
     return(datav)
   })
