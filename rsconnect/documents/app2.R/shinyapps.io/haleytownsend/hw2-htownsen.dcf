@@ -5,8 +5,9 @@ account: haleytownsend
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 454298
-bundleId: 1592547
+bundleId: 1623133
 url: https://haleytownsend.shinyapps.io/hw2-htownsen/
-when: 1537306226.55323
+when: 1538674058.60816
 asMultiple: FALSE
 asStatic: FALSE
+ignoredFiles: Getting-Open-Data-through-the-WPRDC-thru-APIs.pdf|writing_SQL_Query.txt
