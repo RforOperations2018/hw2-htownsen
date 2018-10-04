@@ -158,8 +158,9 @@ server <- function(input, output, session=session) {
     url <- paste0("https://data.wprdc.org/api/3/action/datastore_search_sql?sql=SELECT%20*%20FROM%20%226d29ac78-12b8-4e1d-b325-6edeef59b593%22%20WHERE%20%22SafetyAV%22%203E%3D",
                   input$safetySelect[1], "AND%20%22SafetyAV%22%20%3C%3D", input$safetySelect[2],"%3Fsql%3D")
     # Load and clean data
-    datav <- ckanSQL(url) %>%
-      mutate(rating = as.numeric(SafetyAV))
+    datav <- ckanSQL(url) %>% 
+      mutate(rating = as.numeric("SafetyAV"),
+             End.Date = "End Date")
     
     return(datav)
   })
@@ -215,9 +216,10 @@ server <- function(input, output, session=session) {
   # })
 
   # Data Table Output
+  #FeelingsProvingGround, AVSafetyPotential, PayingAttentionAV, TechnologyFamiliarity
   output$table <- DT::renderDataTable({
     df <- loaddf()
-    subset(df, select = c(End.Date, FeelingsProvingGround, AVSafetyPotential, PayingAttentionAV, TechnologyFamiliarity))
+    subset(df, select = c(End.Date, rating))
   })
 
   # Download data in the datatable
