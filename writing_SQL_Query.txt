@@ -8,11 +8,13 @@ SELECT+*+FROM+%226d29ac78-12b8-4e1d-b325-6edeef59b593%22+WHERE+%22SafetyAV%22+%3
 ?sql=SELECT%20*%20FROM%20%226d29ac78-12b8-4e1d-b325-6edeef59b593%22
 
 OK the basic one works, now WHERE SafetyAV>='1' AND SafetyAV<='5'
-THIS WORKS: /api/3/action/datastore_search_sql
-?sql=SELECT%20*%20FROM%20%226d29ac78-12b8-4e1d-b325-6edeef59b593%22%20WHERE%20%22SafetyAV%22%3E%3D%271%27%20AND%20%22SafetyAV%22%3C%3D%275%27
+THIS WORKS: /api/3/action/datastore_search_sql?
+sql=SELECT%20*%20FROM%20%226d29ac78-12b8-4e1d-b325-6edeef59b593%22%20WHERE%20%22SafetyAV%22%3E%3D%271%27%20AND%20%22SafetyAV%22%3C%3D%275%27%20AND%20%22FeelingsProvingGround%22%20IN%20%28%27Approve%27%2C%27Neutral%27%29
 
 SAMPLE
 https://data.wprdc.org/api/action/datastore_search_sql?sql=SELECT%20*%20FR
 OM%20%224d49202b-8bac-4cf9-9915-798a342253a6%22%20WHERE%20%22
 DogName%22%20LIKE%20%27%SIRIUS%%27%20AND%20%22Breed%22%2
-0LIKE%20%27DACHSHUND%27
+0LIKE%20%27DACHSHUND%27\
+
+WHERE column_name IN (value1, value2, ...)

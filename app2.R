@@ -113,7 +113,7 @@ ui <- fluidPage(theme = shinytheme("united"),
                     choices = feelPG,
                     multiple = TRUE,
                     selectize = TRUE,
-                    selected = c("Approve", "Somewhat Approve", "Neutral")),
+                    selected = c("Approve")),
         
         # INPUT 3: Familiarity with AV Technologies
          checkboxGroupInput("techSelect", label="Select Respondent Familiarity with AV Techs:",
@@ -158,13 +158,15 @@ server <- function(input, output, session=session) {
     
     # Also filter by the three inputs 
     url <- paste0("https://data.wprdc.org/api/3/action/datastore_search_sql?sql=SELECT%20*%20FROM%20%226d29ac78-12b8-4e1d-b325-6edeef59b593%22%20WHERE%20%22SafetyAV%22%3E%3D%27",
-                  input$safetySelect[1], "%27%20AND%20%22SafetyAV%22%3C%3D%27",input$safetySelect[2],"%27"
+                  input$safetySelect[1], "%27%20AND%20%22SafetyAV%22%3C%3D%27",input$safetySelect[2],"%27%20AND%20%22FeelingsProvingGround%22%20IN%20%28%27", input$feelSelect,
+                  "%27%29"
     )
     
     datav <- ckanSQL(url) %>% 
-      mutate(rating = as.numeric(SafetyAV),
+      mutate(Rating = as.numeric(SafetyAV),
              # Use a period if there's a space in the column name
-             end = as.Date(End.Date))
+             SurveyDate = as.Date(End.Date),
+             ProvingGroundFeel = FeelingsProvingGround)
     
     return(datav)
   })
@@ -223,7 +225,7 @@ server <- function(input, output, session=session) {
   #FeelingsProvingGround, AVSafetyPotential, PayingAttentionAV, TechnologyFamiliarity
   output$table <- DT::renderDataTable({
     df <- loaddf()
-    subset(df, select = c(rating, end))
+    subset(df, select = c(Rating, SurveyDate, ProvingGroundFeel))
   })
 
   # Download data in the datatable
