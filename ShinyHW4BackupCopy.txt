@@ -14,7 +14,7 @@
 #one (1) functioning downloadButton() and one (1) observer in the server. On the server side your plots and 
 #tables must utilize the reactive function for any and all datasets.
 
-#Homework 4: Using Web APIâ€™s
+#Homework 4: Using Web API’s
 #Due Date: 10/5/2018
 
 #For many web applications it is important to pull information from somewhere else on the internet.
