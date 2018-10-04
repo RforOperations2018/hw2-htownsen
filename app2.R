@@ -35,7 +35,6 @@ library(wordcloud2)
 library(httr)
 library(jsonlite)
 library(htmltools)
-# library(gsubfn)
 
 ckanSQL <- function(url) {
   # Make the Request
@@ -63,34 +62,7 @@ familiarTech <- sort(ckanUniques("6d29ac78-12b8-4e1d-b325-6edeef59b593", "Famili
 # Grab the unique values for the FamiliarityTechnoology column, which is used in INPUT 3
 safetySlide <- sort(ckanUniques("6d29ac78-12b8-4e1d-b325-6edeef59b593", "SafetyAV")$SafetyAV)
 
-# BikePGH -> Autonomous Vehicle Survey of Bicyclists and Pedestrians in Pittsburgh, 2017
-
-# No need to set working directory since this app2.R file resides in the same location/repository
-# as the csv files
-# df.load = read.csv("bikepghmembers.csv", strip.white = T)
-# 
-# # Rename a few columns to make more sense
-# names(df.load)[20] <- "TechnologyFamiliarity"
-# 
-# # Making zipcodes a string for the wordcloud
-# df.load$ZipCode <- as.character(df.load$ZipCode)
-# 
-# # Casting the "SafetyAV" scale as a numeric
-# df.load$SafetyAV <- as.numeric(df.load$SafetyAV)
-# 
-# pdf(NULL)
-
-# Create a new column that is End.Date minus Start.Date and call it "CompleteTime"
-# And then use "CompleteTime" in an input slider
-# Unfortunately, these times are recorded in "AM" and "PM" instead of military time. All have PST
-# df$time2 <- strptime(df$time2, "%Y-%m-%d %H:%M:%OS")
-# 
-# df$CompleteTime <- as.Date(as.character(df$End.Date), format="%m/%d/%Y %h:%m:%s %p")-
-#   as.Date(as.character(df$Start.Date), format="%m/%d/%Y %I:%m:%s %p %X")
-
-#df$CompleteTime <- difftime(df$End.Date,df$Start.Date,units="mins")
-
-# Define UI for application that draws a histogram
+# Define UI for application 
 ui <- fluidPage(theme = shinytheme("united"),
    
    # Application title
@@ -158,7 +130,7 @@ server <- function(input, output, session=session) {
     )
     
     datav <- ckanSQL(url) %>% 
-      mutate(Rating = as.numeric(SafetyAV),
+      mutate(SafetyRating = as.numeric(SafetyAV),
              # Use a period if there's a space in the column name
              SurveyDate = as.Date(End.Date),
              ProvingGroundFeel = FeelingsProvingGround,
@@ -178,7 +150,7 @@ server <- function(input, output, session=session) {
 
     ggplotly(
       ggplot(data = dat, aes(x = FeelingsProvingGround, color = FeelingsProvingGround, fill=FeelingsProvingGround)) +
-        geom_bar() + ggtitle("How do you feel about the use of Pittsburgh's public streets as a proving ground for AVs?") +
+        geom_bar() + ylab("Number of Respondents") + ggtitle("How do you feel about the use of Pittsburgh's public streets as a proving ground for AVs?") +
         guides(color = FALSE))
   })
   
@@ -188,7 +160,7 @@ server <- function(input, output, session=session) {
     ggplotly(
       ggplot(data = dat, aes(x = FamiliarityTechnoology, color = FamiliarityTechnoology, fill = FamiliarityTechnoology)) +
         geom_bar() + ggtitle("How familiar are you with the technology behind autonomous vehicles?") +
-        guides(color = FALSE) + coord_flip())
+        guides(color = FALSE) + xlab("Familiarity") + ylab("Number of Respondents") + coord_flip())
   })
 
   # FIGURE/PLOT 3: Word Cloud of all the Zipcodes represented, given the inputs
@@ -201,11 +173,10 @@ server <- function(input, output, session=session) {
     wordcloud2(w)
   })
 
-  # Data Table Output
-  #FeelingsProvingGround, AVSafetyPotential, PayingAttentionAV, TechnologyFamiliarity
+  # Data Table Output containing information from the input fields
   output$table <- DT::renderDataTable({
     df <- loaddf()
-    subset(df, select = c(Rating, SurveyDate, ProvingGroundFeel, AVTechFamiliarity))
+    subset(df, select = c(SafetyRating, SurveyDate, ProvingGroundFeel, AVTechFamiliarity, ZipCode))
   })
 
   # Download data in the datatable
