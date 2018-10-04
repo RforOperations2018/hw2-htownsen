@@ -147,13 +147,9 @@ server <- function(input, output, session=session) {
   
   loaddf <- eventReactive(input$button, {
     # Build API Query with proper encodes
-    #I only want to keep COMPLETE surveys, so filter out the INCOMPLETE as well
-    
-    #paste0("https://data.wprdc.org/api/3/action/datastore_search_sql?sql=SELECT%20*%20FROM%20%226d29ac78-12b8-4e1d-b325-6edeef59b593%22%20WHERE%20%22SafetyAV%22%203E%3D",
-    #input$safetySelect[1], "%20AND%20%22SafetyAV%22%20%3C%3D", input$safetySelect[2],"%3Fsql%3D")
     
     # Also filter by the three inputs 
-    # it does not like "Somewhat disapprove" or "Somewhat approve" because they have spaces...
+    # Using gsub to deal with spaces for certain factor levels like "Not familiar at all"
     url <- paste0("https://data.wprdc.org/api/3/action/datastore_search_sql?sql=SELECT%20*%20FROM%20%226d29ac78-12b8-4e1d-b325-6edeef59b593%22%20WHERE%20%22SafetyAV%22%3E%3D%27",
                   input$safetySelect[1], "%27%20AND%20%22SafetyAV%22%3C%3D%27",input$safetySelect[2],"%27%20AND%20%22FeelingsProvingGround%22%20IN%20%28%27", gsub(" ", "%20",input$feelSelect[1]),
                   "%27%2C%20%27", gsub(" ", "%20",input$feelSelect[2]),"%27%2C%20%27", gsub(" ", "%20",input$feelSelect[3]),"%27%2C%20%27", gsub(" ", "%20",input$feelSelect[4]), "%27%2C%20%27",
@@ -165,7 +161,7 @@ server <- function(input, output, session=session) {
              # Use a period if there's a space in the column name
              SurveyDate = as.Date(End.Date),
              ProvingGroundFeel = FeelingsProvingGround,
-             TechFamiliarity = FamiliarityTechnoology)
+             AVTechFamiliarity = FamiliarityTechnoology)
     
     return(datav)
   })
@@ -224,7 +220,7 @@ server <- function(input, output, session=session) {
   #FeelingsProvingGround, AVSafetyPotential, PayingAttentionAV, TechnologyFamiliarity
   output$table <- DT::renderDataTable({
     df <- loaddf()
-    subset(df, select = c(Rating, SurveyDate, ProvingGroundFeel, TechFamiliarity))
+    subset(df, select = c(Rating, SurveyDate, ProvingGroundFeel, AVTechFamiliarity))
   })
 
   # Download data in the datatable
@@ -237,13 +233,13 @@ server <- function(input, output, session=session) {
       write.csv(loaddf(), file)
     }
   )
-  # # Reset Filter Data
-  # observeEvent(input$reset, {
-  #   updateSelectInput(session, "feelSelect", selected = c("Approve", "Somewhat Approve", "Neutral"))
-  #   updateSliderInput(session, "safetySelect", value = c(min(df.load$SafetyAV, na.rm = T), max(df.load$SafetyAV, na.rm = T)))
-  #   updateCheckboxGroupInput(session, "techSelect", selected = c("Extremely familiar", "Mostly familiar"))
-  #   showNotification("You have successfully reset the filters!", type = "message")
-  # })
+  # Reset Filter Data
+  observeEvent(input$reset, {
+    updateSelectInput(session, "feelSelect", selected = c("Approve", "Somewhat Approve", "Neutral"))
+    updateSliderInput(session, "safetySelect", value = c(min(as.numeric(safetySlide), na.rm=T), max(as.numeric(safetySlide), na.rm=T)))
+    updateCheckboxGroupInput(session, "techSelect", selected = c("Mostly familiar"))
+    showNotification("You have successfully reset the filters! Make sure to hit Submit again!", type = "message")
+  })
   
 }
 
