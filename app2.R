@@ -157,12 +157,12 @@ server <- function(input, output, session=session) {
     #input$safetySelect[1], "%20AND%20%22SafetyAV%22%20%3C%3D", input$safetySelect[2],"%3Fsql%3D")
     
     # Also filter by the three inputs 
-    url <- paste0("https://data.wprdc.org/api/3/action/datastore_search_sql?sql=SELECT+*+FROM+%226d29ac78-12b8-4e1d-b325-6edeef59b593%22+WHERE+%22SafetyAV%22+%3E%3D+",
-                  input$safetySelect[1],"+AND+%22SafetyAV%22+%3C%3D+", input$safetySelect[2])
+    url <- paste0("https://data.wprdc.org/api/3/action/datastore_search_sql?sql=SELECT%20*%20FROM%20%226d29ac78-12b8-4e1d-b325-6edeef59b593%22%20WHERE%20%22SafetyAV%22%3E%3D%27",
+                  1, "%27%20AND%20%22SafetyAV%22%3C%3D%27",5,"%27"
+    )
     
     datav <- ckanSQL(url) %>% 
-      mutate(rating = as.numeric("SafetyAV"),
-             End.Date = "End Date")
+      mutate(rating = as.numeric("SafetyAV"))
     
     return(datav)
   })
@@ -221,7 +221,7 @@ server <- function(input, output, session=session) {
   #FeelingsProvingGround, AVSafetyPotential, PayingAttentionAV, TechnologyFamiliarity
   output$table <- DT::renderDataTable({
     df <- loaddf()
-    subset(df, select = c(End.Date, rating))
+    subset(df, select = c(rating))
   })
 
   # Download data in the datatable
