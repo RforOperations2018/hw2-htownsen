@@ -61,7 +61,7 @@ ckanUniques <- function(id, field) {
 # Grab the unique values for the FeelingsProvingGround column, which is used in INPUT 2
 feelPG <- sort(ckanUniques("6d29ac78-12b8-4e1d-b325-6edeef59b593", "FeelingsProvingGround")$FeelingsProvingGround)
 # Grab the unique values for the FamiliarityTechnoology column (yes, it is spelled wrong in the data), which is used in INPUT 3
-familiarTech <- sort(ckanUniques("6d29ac78-12b8-4e1d-b325-6edeef59b593", "FamiliarityTechnoology")$FamiliarityTechnoology)
+familiarTech <- sort(ckanUniques("6d29ac78-12b8-4e1d-b325-6edeef59b593", "FamiliarityTechnoology")$FamiliarityTechnoology) #That's a weird typo they have
 # Grab the unique values for the SafetyAV column, which is used in INPUT 1
 safetySlide <- sort(ckanUniques("6d29ac78-12b8-4e1d-b325-6edeef59b593", "SafetyAV")$SafetyAV)
 
