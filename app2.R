@@ -103,7 +103,7 @@ ui <- fluidPage(theme = shinytheme("united"),
       
       # Show a plot of the generated distribution
       mainPanel(tabsetPanel(type="tabs",
-                            tabPanel("Plots", fluidRow(plotlyOutput("plot1"), fluidRow(plotlyOutput("plot2")), fluidRow(wordcloud2Output("plot3")))),
+                            tabPanel("Plots", fluidRow(plotlyOutput("plot1"), fluidRow(plotlyOutput("plot2")), fluidRow(wordcloud2Output("plot3")))), # Some HTML here would be nice as wordcloud2 doesn't have label arguments like ggplot2/plotly
                             tabPanel("Table",
                                      inputPanel(
                                        downloadButton("downloadData","Download Survey Data")
